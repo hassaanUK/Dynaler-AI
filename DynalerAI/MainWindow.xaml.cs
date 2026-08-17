@@ -40,7 +40,7 @@ public partial class MainWindow : Window
         _hotkey.Register(Key.S, ModifierKeys.Control | ModifierKeys.Shift);
     }
 
-    // ── Title bar ────────────────────────────────────────────────────────────
+    // Title bar
     private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
     {
         if (e.LeftButton == MouseButtonState.Pressed) DragMove();
@@ -62,7 +62,7 @@ public partial class MainWindow : Window
         RegisterHotkey(); // Re-register in case hotkey changed
     }
 
-    // ── AI Mode ──────────────────────────────────────────────────────────────
+    // AI Mode
     private void AiMode_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
         if (ApiKeyPanel == null) return;
@@ -91,7 +91,7 @@ public partial class MainWindow : Window
         ModelCombo.SelectedIndex = 0;
     }
 
-    // ── Start / Stop ─────────────────────────────────────────────────────────
+    // Start / Stop
     private async void Start_Click(object sender, RoutedEventArgs e)
     {
         if (_running) return;
@@ -151,7 +151,7 @@ public partial class MainWindow : Window
         });
     }
 
-    // ── Logging ───────────────────────────────────────────────────────────────
+    // Logging
     public void Log(string message)
     {
         var line = $"[{DateTime.Now:HH:mm:ss}] {message}";
@@ -163,7 +163,7 @@ public partial class MainWindow : Window
 
         var cfg = _config.Load();
         if (cfg.EnableLogging)
-            File.AppendAllText("history.log", line + "\n");
+            File.AppendAllText(ConfigManager.LogFile, line + "\n");
     }
 
     private void OnPlanUpdate(string plan)   => Dispatcher.Invoke(() => PlanText.Text = plan);
@@ -175,21 +175,21 @@ public partial class MainWindow : Window
         StatusDot.Fill  = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color));
     }
 
-    // ── Presets ───────────────────────────────────────────────────────────────
+    // Presets
     private List<string> _presets = new();
 
     private void LoadPresets()
     {
-        if (File.Exists("presets.json"))
+        if (File.Exists(ConfigManager.PresetsFile))
         {
-            try { _presets = JsonSerializer.Deserialize<List<string>>(File.ReadAllText("presets.json")) ?? new(); }
+            try { _presets = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(ConfigManager.PresetsFile)) ?? new(); }
             catch { _presets = new(); }
         }
         RefreshPresetsList();
     }
 
     private void SavePresets() =>
-        File.WriteAllText("presets.json", JsonSerializer.Serialize(_presets));
+        File.WriteAllText(ConfigManager.PresetsFile, JsonSerializer.Serialize(_presets));
 
     private void RefreshPresetsList()
     {
