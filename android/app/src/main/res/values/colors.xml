@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_dark">#1A0A2E</color>
+    <color name="bg_mid">#2D1B4E</color>
+    <color name="purple_500">#6C3FC5</color>
+    <color name="purple_200">#8B7BAE</color>
+    <color name="text_light">#E8E0FF</color>
+    <color name="green">#2ECC71</color>
+    <color name="red">#E74C3C</color>
+    <color name="colorPrimary">#6C3FC5</color>
+    <color name="colorPrimaryDark">#1A0A2E</color>
+    <color name="colorAccent">#9B59E8</color>
+</resources>
