@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/bg_dark">
+
+    <androidx.appcompat.widget.Toolbar android:id="@+id/toolbar"
+        android:layout_width="match_parent" android:layout_height="?attr/actionBarSize"
+        android:background="@color/bg_mid"/>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="vertical" android:padding="16dp">
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="PC IP ADDRESS" android:textColor="@color/purple_200" android:textSize="11sp"
+            android:letterSpacing="0.1" android:layout_marginBottom="4dp"/>
+        <EditText android:id="@+id/et_host"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="192.168.1.100" android:textColor="@color/text_light"
+            android:textColorHint="@color/purple_200" android:background="@drawable/edit_text_bg"
+            android:padding="12dp" android:inputType="textUri" android:layout_marginBottom="16dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="PORT (default 5757)" android:textColor="@color/purple_200" android:textSize="11sp"
+            android:letterSpacing="0.1" android:layout_marginBottom="4dp"/>
+        <EditText android:id="@+id/et_port"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="5757" android:textColor="@color/text_light"
+            android:textColorHint="@color/purple_200" android:background="@drawable/edit_text_bg"
+            android:padding="12dp" android:inputType="number" android:layout_marginBottom="16dp"/>
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Make sure server.py is running on your PC and both devices are on the same Wi-Fi. Find your PC IP with: ipconfig (Windows)"
+            android:textColor="@color/purple_200" android:textSize="12sp" android:layout_marginBottom="24dp"/>
+
+        <Button android:id="@+id/btn_save"
+            android:layout_width="match_parent" android:layout_height="52dp"
+            android:text="Save" android:textColor="@color/text_light" android:backgroundTint="@color/purple_500"/>
+    </LinearLayout>
+</LinearLayout>
