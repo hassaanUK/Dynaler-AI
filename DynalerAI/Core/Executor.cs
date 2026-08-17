@@ -23,9 +23,9 @@ public static class Executor {
     static void PressKey(string k) {
         if (k.ToLower().StartsWith("ctrl+")) { SendKeys.SendWait("^"+k[5..].ToLower()); return; }
         if (k.ToLower().StartsWith("alt+")) { SendKeys.SendWait("%"+k[4..].ToLower()); return; }
-        var s = k.Trim().ToLower() switch { "enter"or"return"=>"{ENTER}","tab"=>"{TAB}","esc"or"escape"=>"{ESC}","backspace"=>"{BACKSPACE}","delete"=>"{DELETE}", _=>k };
+        var s = k.Trim().ToLower() switch { "enter" or "return" => "{ENTER}", "tab" => "{TAB}", "esc" or "escape" => "{ESC}", "backspace" => "{BACKSPACE}", "delete" => "{DELETE}", _ => k };
         SendKeys.SendWait(s);
     }
-    static string? Quoted(string t) { var s=t.IndexOf('"'); var e=t.LastIndexOf('"'); return s>=0&&e>s?t[(s+1)..e]:null; }
-    static string After(string t, params string[] kws) { var lo=t.ToLower(); foreach(var k in kws){var i=lo.IndexOf(k+" ");if(i>=0)return t[(i+k.Length+1)..].Trim().Trim('"',''');} return t; }
+    static string? Quoted(string t) { var s=t.IndexOf('"''); var e=t.LastIndexOf('"''); return s>=0&&e>s?t[(s+1)..e]:null; }
+    static string After(string t, params string[] kws) { var lo=t.ToLower(); foreach(var k in kws){var i=lo.IndexOf(k+" ");if(i>=0)return t[(i+k.Length+1)..].Trim().Trim('"'',''''');} return t; }
 }
