@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/bg_dark">
+
+    <androidx.appcompat.widget.Toolbar android:id="@+id/toolbar"
+        android:layout_width="match_parent" android:layout_height="?attr/actionBarSize"
+        android:background="@color/bg_mid" android:elevation="4dp"/>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="16dp">
+
+            <TextView android:id="@+id/tv_connection"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Not configured" android:textColor="@color/purple_200"
+                android:textSize="12sp" android:layout_marginBottom="6dp"/>
+
+            <TextView android:id="@+id/tv_error"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:visibility="gone" android:textColor="@color/red"
+                android:textSize="12sp" android:layout_marginBottom="6dp"/>
+
+            <!-- Status -->
+            <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginBottom="10dp"
+                app:cardBackgroundColor="@color/bg_mid" app:cardCornerRadius="12dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="14dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="STATUS" android:textColor="@color/purple_200" android:textSize="10sp"
+                        android:letterSpacing="0.1" android:layout_marginBottom="6dp"/>
+                    <TextView android:id="@+id/tv_status"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Idle" android:textSize="20sp" android:textStyle="bold"
+                        android:textColor="@color/purple_200"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- AI Mode + Model -->
+            <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginBottom="10dp"
+                app:cardBackgroundColor="@color/bg_mid" app:cardCornerRadius="12dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="14dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="AI MODE" android:textColor="@color/purple_200" android:textSize="10sp"
+                        android:letterSpacing="0.1" android:layout_marginBottom="6dp"/>
+                    <Spinner android:id="@+id/spinner_mode"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:backgroundTint="@color/purple_500" android:layout_marginBottom="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="MODEL" android:textColor="@color/purple_200" android:textSize="10sp"
+                        android:letterSpacing="0.1" android:layout_marginBottom="6dp"/>
+                    <Spinner android:id="@+id/spinner_model"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:backgroundTint="@color/purple_500"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- API Key -->
+            <LinearLayout android:id="@+id/layout_api_key"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:layout_marginBottom="10dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="API KEY" android:textColor="@color/purple_200" android:textSize="10sp"
+                    android:letterSpacing="0.1" android:layout_marginBottom="4dp"/>
+                <EditText android:id="@+id/et_api_key"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:hint="sk-..." android:textColor="@color/text_light"
+                    android:textColorHint="@color/purple_200" android:background="@drawable/edit_text_bg"
+                    android:padding="12dp" android:inputType="textPassword"/>
+            </LinearLayout>
+
+            <!-- Goal -->
+            <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginBottom="10dp"
+                app:cardBackgroundColor="@color/bg_mid" app:cardCornerRadius="12dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="14dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="WHAT SHOULD THE AI DO?" android:textColor="@color/purple_200"
+                        android:textSize="10sp" android:letterSpacing="0.1" android:layout_marginBottom="8dp"/>
+                    <EditText android:id="@+id/et_goal"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:hint="Open Notepad and type Hello World"
+                        android:textColor="@color/text_light" android:textColorHint="@color/purple_200"
+                        android:background="@drawable/edit_text_bg" android:padding="12dp"
+                        android:minLines="3" android:gravity="top|start" android:inputType="textMultiLine"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Options (switches) -->
+            <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginBottom="10dp"
+                app:cardBackgroundColor="@color/bg_mid" app:cardCornerRadius="12dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="14dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:text="Safe Mode" android:textColor="@color/text_light"/>
+                        <androidx.appcompat.widget.SwitchCompat android:id="@+id/switch_safe_mode"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:text="Screen Vision" android:textColor="@color/text_light"/>
+                        <androidx.appcompat.widget.SwitchCompat android:id="@+id/switch_screen_vision"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                            android:layout_weight="1" android:text="Auto Retry" android:textColor="@color/text_light"/>
+                        <androidx.appcompat.widget.SwitchCompat android:id="@+id/switch_auto_retry"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Plan -->
+            <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_marginBottom="14dp"
+                app:cardBackgroundColor="@color/bg_mid" app:cardCornerRadius="12dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="14dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="ACTION PLAN" android:textColor="@color/purple_200" android:textSize="10sp"
+                        android:letterSpacing="0.1" android:layout_marginBottom="6dp"/>
+                    <TextView android:id="@+id/tv_plan"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="—" android:textColor="@color/text_light" android:textSize="13sp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Buttons -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <Button android:id="@+id/btn_start"
+                    android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1"
+                    android:layout_marginEnd="8dp" android:text="Start AI"
+                    android:textColor="@color/text_light" android:backgroundTint="@color/purple_500"/>
+                <Button android:id="@+id/btn_stop"
+                    android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1"
+                    android:enabled="false" android:text="Stop"
+                    android:textColor="@color/text_light" android:backgroundTint="@color/red"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
