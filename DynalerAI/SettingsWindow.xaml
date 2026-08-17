@@ -4,7 +4,9 @@
         Title="Settings - Dynaler AI" Height="480" Width="480"
         WindowStyle="None" AllowsTransparency="True"
         Background="Transparent" WindowStartupLocation="CenterOwner">
-    <Border CornerRadius="14" Background="#1A0A2E" BorderBrush="#6C3FC5" BorderThickness="1">
+
+    <Border CornerRadius="14" Background="#1A0A2E"
+            BorderBrush="#6C3FC5" BorderThickness="1">
         <Border.Effect>
             <DropShadowEffect Color="#6C3FC5" BlurRadius="20" Opacity="0.4" ShadowDepth="0"/>
         </Border.Effect>
@@ -14,6 +16,8 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
+
+            <!-- Header -->
             <Grid Grid.Row="0" Margin="0,0,0,20">
                 <TextBlock Text="Settings" FontSize="18" FontWeight="Bold"
                            Foreground="#E8E0FF" VerticalAlignment="Center"/>
@@ -21,18 +25,24 @@
                         Style="{StaticResource DangerButton}" Width="32" Height="32"
                         Click="Close_Click"/>
             </Grid>
-            <StackPanel Grid.Row="1" Spacing="12">
-                <Border Background="#2D1B4E" CornerRadius="10" Padding="16">
+
+            <!-- Settings -->
+            <StackPanel Grid.Row="1">
+
+                <Border Background="#2D1B4E" CornerRadius="10" Padding="16" Margin="0,0,0,12">
                     <StackPanel>
                         <TextBlock Text="BUILT-IN API KEY" FontSize="10" FontWeight="Bold"
                                    Foreground="#8B7BAE" Margin="0,0,0,6"/>
-                        <PasswordBox x:Name="BuiltinKeyBox" Background="#0D0520" Foreground="#E8E0FF"
-                                     BorderBrush="#6C3FC5" BorderThickness="1" Padding="10,8" FontSize="13"/>
-                        <TextBlock Text="Used for Built-in AI (ChatGPT) mode"
+                        <PasswordBox x:Name="BuiltinKeyBox"
+                                     Background="#0D0520" Foreground="#E8E0FF"
+                                     BorderBrush="#6C3FC5" BorderThickness="1"
+                                     Padding="10,8" FontSize="13"/>
+                        <TextBlock Text="Used for the Built-in AI (ChatGPT) mode"
                                    FontSize="11" Foreground="#8B7BAE" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
-                <Border Background="#2D1B4E" CornerRadius="10" Padding="16">
+
+                <Border Background="#2D1B4E" CornerRadius="10" Padding="16" Margin="0,0,0,12">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -50,14 +60,16 @@
                         </StackPanel>
                     </Grid>
                 </Border>
-                <Border Background="#2D1B4E" CornerRadius="10" Padding="16">
-                    <StackPanel Spacing="8">
+
+                <Border Background="#2D1B4E" CornerRadius="10" Padding="16" Margin="0,0,0,12">
+                    <StackPanel>
                         <CheckBox x:Name="MinimizeToTrayCheck" Content="Minimize to system tray"
-                                  Style="{StaticResource PurpleCheckBox}"/>
+                                  Style="{StaticResource PurpleCheckBox}" Margin="0,0,0,8"/>
                         <CheckBox x:Name="EnableLoggingCheck" Content="Enable history logging (history.log)"
                                   Style="{StaticResource PurpleCheckBox}"/>
                     </StackPanel>
                 </Border>
+
                 <Border Background="#2D1B4E" CornerRadius="10" Padding="16">
                     <TextBlock FontSize="12" Foreground="#8B7BAE" TextWrapping="Wrap">
                         <Run FontWeight="Bold" Foreground="#E8E0FF">Stop Hotkey:</Run>
@@ -65,6 +77,8 @@
                     </TextBlock>
                 </Border>
             </StackPanel>
+
+            <!-- Save Button -->
             <Button Grid.Row="2" Content="Save Settings" Style="{StaticResource PurpleButton}"
                     Height="44" Margin="0,16,0,0" Click="Save_Click" FontSize="14"/>
         </Grid>
