@@ -11,7 +11,4 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <ItemGroup>
-    <Resource Include="Resources\logo.png" />
-  </ItemGroup>
 </Project>
