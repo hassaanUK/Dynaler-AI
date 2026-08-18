@@ -2,7 +2,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Windows;
 
 namespace DynalerAI.Core;
 
@@ -90,13 +89,12 @@ public class AiController
 
             if (opts.SafeMode)
             {
-                // Use WPF MessageBox — no WinForms dependency needed here
-                var result = MessageBox.Show(
+                var result = System.Windows.MessageBox.Show(
                     $"AI wants to:\n\n{step}\n\nAllow?",
                     "Safe Mode — Confirm Action",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-                if (result == MessageBoxResult.No) { _log("Step skipped by user."); continue; }
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Question);
+                if (result == System.Windows.MessageBoxResult.No) { _log("Step skipped by user."); continue; }
             }
 
             await Executor.ExecuteStepAsync(step, opts.ActionDelayMs, token);
@@ -110,7 +108,6 @@ public class AiController
 
     private async Task<string> GetPlanFromAiAsync(AiOptions opts, string? screenshot, CancellationToken token)
     {
-        // Guard: built-in mode needs a key; custom modes need a key too
         if (string.IsNullOrWhiteSpace(opts.ApiKey))
             throw new InvalidOperationException("API key is missing. Enter it in Settings.");
 
@@ -167,16 +164,13 @@ public class AiController
             Content = new StringContent(body, Encoding.UTF8, "application/json")
         };
 
-        if (opts.ModeIndex <= 1) // OpenAI Bearer
-        {
+        if (opts.ModeIndex <= 1)
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", opts.ApiKey);
-        }
-        else if (opts.ModeIndex == 2) // Claude key + version header
+        else if (opts.ModeIndex == 2)
         {
             request.Headers.Add("x-api-key", opts.ApiKey);
             request.Headers.Add("anthropic-version", "2023-06-01");
         }
-        // Gemini: key is in the URL, no header needed
 
         var response = await _http.SendAsync(request, token);
         if (!response.IsSuccessStatusCode)
@@ -236,10 +230,12 @@ public class AiController
     {
         try
         {
-            var bounds = System.Windows.Forms.Screen.PrimaryScreen!.Bounds;
-            using var bmp = new System.Drawing.Bitmap(bounds.Width, bounds.Height);
+            // Use P/Invoke + System.Drawing.Common (no WinForms needed)
+            int w = (int)System.Windows.SystemParameters.PrimaryScreenWidth;
+            int h = (int)System.Windows.SystemParameters.PrimaryScreenHeight;
+            using var bmp = new System.Drawing.Bitmap(w, h);
             using var g   = System.Drawing.Graphics.FromImage(bmp);
-            g.CopyFromScreen(bounds.Location, System.Drawing.Point.Empty, bounds.Size);
+            g.CopyFromScreen(0, 0, 0, 0, new System.Drawing.Size(w, h));
             using var ms  = new System.IO.MemoryStream();
             bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
             return Convert.ToBase64String(ms.ToArray());
