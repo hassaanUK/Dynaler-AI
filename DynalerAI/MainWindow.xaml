@@ -27,7 +27,6 @@
                     CornerRadius="16,16,0,0" MouseLeftButtonDown="TitleBar_MouseDown">
                 <Grid Margin="16,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Image Source="Resources/logo.png" Width="32" Height="32" Margin="0,0,10,0"/>
                         <TextBlock Text="Dynaler AI" FontSize="18" FontWeight="Bold"
                                    Foreground="{StaticResource TextLightBrush}" VerticalAlignment="Center"/>
                         <TextBlock Text="v2.0" FontSize="11" Foreground="{StaticResource TextDimBrush}"
