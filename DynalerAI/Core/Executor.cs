@@ -1,20 +1,43 @@
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
+using System.Text;
 
 namespace DynalerAI.Core;
 
 public static class Executor
 {
+    // ── P/Invoke declarations ─────────────────────────────────────────────────
     [DllImport("user32.dll")] static extern bool SetCursorPos(int x, int y);
     [DllImport("user32.dll")] static extern void mouse_event(uint flags, int dx, int dy, uint data, int extra);
-    [DllImport("user32.dll")] static extern void keybd_event(byte vk, byte scan, uint flags, int extra);
+    [DllImport("user32.dll")] static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+    [DllImport("user32.dll")] static extern short VkKeyScan(char ch);
 
     const uint MOUSEEVENTF_LEFTDOWN  = 0x02;
     const uint MOUSEEVENTF_LEFTUP    = 0x04;
     const uint MOUSEEVENTF_RIGHTDOWN = 0x08;
     const uint MOUSEEVENTF_RIGHTUP   = 0x10;
-    const uint KEYEVENTF_KEYUP       = 0x02;
 
+    // ── INPUT structs for SendInput ───────────────────────────────────────────
+    [StructLayout(LayoutKind.Sequential)]
+    struct INPUT { public uint type; public INPUTUNION u; }
+
+    [StructLayout(LayoutKind.Explicit)]
+    struct INPUTUNION
+    {
+        [FieldOffset(0)] public MOUSEINPUT mi;
+        [FieldOffset(0)] public KEYBDINPUT ki;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct MOUSEINPUT { public int dx, dy; public uint mouseData, dwFlags, time; public nint dwExtraInfo; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct KEYBDINPUT { public ushort wVk, wScan; public uint dwFlags; public uint time; public nint dwExtraInfo; }
+
+    const uint INPUT_KEYBOARD    = 1;
+    const uint KEYEVENTF_KEYUP   = 0x0002;
+    const uint KEYEVENTF_UNICODE = 0x0004;
+
+    // ── Public entry point ────────────────────────────────────────────────────
     public static async Task ExecuteStepAsync(string step, int delayMs, CancellationToken token)
     {
         var lower = step.ToLowerInvariant();
@@ -40,9 +63,7 @@ public static class Executor
             if (!string.IsNullOrEmpty(text))
             {
                 await Task.Delay(200, token);
-                // Escape SendKeys special characters: + ^ % ~ { } ( ) [ ]
-                var escaped = EscapeSendKeys(text);
-                SendKeys.SendWait(escaped);
+                TypeText(text);
             }
         }
         else if (lower.Contains("press "))
@@ -57,9 +78,9 @@ public static class Executor
             await Task.Delay(200, token);
             PressWindowsKey();
             await Task.Delay(800, token);
-            SendKeys.SendWait(EscapeSendKeys(app));
+            TypeText(app);
             await Task.Delay(500, token);
-            SendKeys.SendWait("{ENTER}");
+            PressVk(0x0D); // Enter
         }
         else if (lower.Contains("scroll down"))
         {
@@ -71,26 +92,118 @@ public static class Executor
         }
         else if (lower.Contains("screenshot"))
         {
-            PressKey("PrintScreen");
+            PressVk(0x2C); // VK_SNAPSHOT (Print Screen)
         }
 
         await Task.Delay(delayMs, token);
     }
 
-    // Escape characters that SendKeys treats as special: + ^ % ~ { } ( ) [ ]
-    private static string EscapeSendKeys(string text)
+    // ── Keyboard helpers ──────────────────────────────────────────────────────
+
+    /// <summary>Type arbitrary Unicode text using SendInput (no WinForms needed).</summary>
+    private static void TypeText(string text)
     {
-        var sb = new System.Text.StringBuilder();
+        var inputs = new List<INPUT>();
         foreach (char c in text)
         {
-            if (c is '+' or '^' or '%' or '~' or '{' or '}' or '(' or ')' or '[' or ']')
-                sb.Append('{').Append(c).Append('}');
-            else
-                sb.Append(c);
+            inputs.Add(MakeUnicodeKey(c, false));
+            inputs.Add(MakeUnicodeKey(c, true));
         }
-        return sb.ToString();
+        if (inputs.Count > 0)
+            SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf<INPUT>());
     }
 
+    private static INPUT MakeUnicodeKey(char c, bool keyUp) => new INPUT
+    {
+        type = INPUT_KEYBOARD,
+        u = new INPUTUNION
+        {
+            ki = new KEYBDINPUT
+            {
+                wVk   = 0,
+                wScan = c,
+                dwFlags = KEYEVENTF_UNICODE | (keyUp ? KEYEVENTF_KEYUP : 0u),
+            }
+        }
+    };
+
+    private static void PressVk(ushort vk)
+    {
+        var inputs = new[]
+        {
+            new INPUT { type = INPUT_KEYBOARD, u = new INPUTUNION { ki = new KEYBDINPUT { wVk = vk } } },
+            new INPUT { type = INPUT_KEYBOARD, u = new INPUTUNION { ki = new KEYBDINPUT { wVk = vk, dwFlags = KEYEVENTF_KEYUP } } },
+        };
+        SendInput(2, inputs, Marshal.SizeOf<INPUT>());
+    }
+
+    private static void PressVkWithMod(ushort mod, ushort vk)
+    {
+        var inputs = new[]
+        {
+            new INPUT { type = INPUT_KEYBOARD, u = new INPUTUNION { ki = new KEYBDINPUT { wVk = mod } } },
+            new INPUT { type = INPUT_KEYBOARD, u = new INPUTUNION { ki = new KEYBDINPUT { wVk = vk } } },
+            new INPUT { type = INPUT_KEYBOARD, u = new INPUTUNION { ki = new KEYBDINPUT { wVk = vk, dwFlags = KEYEVENTF_KEYUP } } },
+            new INPUT { type = INPUT_KEYBOARD, u = new INPUTUNION { ki = new KEYBDINPUT { wVk = mod, dwFlags = KEYEVENTF_KEYUP } } },
+        };
+        SendInput(4, inputs, Marshal.SizeOf<INPUT>());
+    }
+
+    private static void PressWindowsKey()
+    {
+        PressVk(0x5B); // VK_LWIN
+    }
+
+    private static void PressKey(string key)
+    {
+        var lower = key.Trim().ToLower();
+
+        if (lower.StartsWith("ctrl+"))  { PressVkWithMod(0x11, CharOrNamedVk(key[5..])); return; }
+        if (lower.StartsWith("alt+"))   { PressVkWithMod(0x12, CharOrNamedVk(key[4..])); return; }
+        if (lower.StartsWith("shift+")) { PressVkWithMod(0x10, CharOrNamedVk(key[6..])); return; }
+
+        PressVk(NamedVk(lower));
+    }
+
+    private static ushort CharOrNamedVk(string s)
+    {
+        if (s.Length == 1) return (ushort)(VkKeyScan(s[0]) & 0xFF);
+        return NamedVk(s.Trim().ToLower());
+    }
+
+    private static ushort NamedVk(string name) => name switch
+    {
+        "enter" or "return"   => 0x0D,
+        "tab"                 => 0x09,
+        "escape" or "esc"     => 0x1B,
+        "space"               => 0x20,
+        "backspace"           => 0x08,
+        "delete"              => 0x2E,
+        "printscreen"         => 0x2C,
+        "home"                => 0x24,
+        "end"                 => 0x23,
+        "pageup"              => 0x21,
+        "pagedown"            => 0x22,
+        "up"                  => 0x26,
+        "down"                => 0x28,
+        "left"                => 0x25,
+        "right"               => 0x27,
+        "f1"                  => 0x70,
+        "f2"                  => 0x71,
+        "f3"                  => 0x72,
+        "f4"                  => 0x73,
+        "f5"                  => 0x74,
+        "f6"                  => 0x75,
+        "f7"                  => 0x76,
+        "f8"                  => 0x77,
+        "f9"                  => 0x78,
+        "f10"                 => 0x79,
+        "f11"                 => 0x7A,
+        "f12"                 => 0x7B,
+        _                     => name.Length == 1 ? (ushort)(VkKeyScan(name[0]) & 0xFF) : (ushort)0,
+    };
+
+    // ── Mouse helpers ─────────────────────────────────────────────────────────
     private static void Click()
     {
         mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
@@ -103,70 +216,7 @@ public static class Executor
         mouse_event(MOUSEEVENTF_RIGHTUP,   0, 0, 0, 0);
     }
 
-    private static void PressWindowsKey()
-    {
-        keybd_event(0x5B, 0, 0, 0);
-        keybd_event(0x5B, 0, KEYEVENTF_KEYUP, 0);
-    }
-
-    private static void PressKey(string key)
-    {
-        var lower = key.Trim().ToLower();
-
-        // Handle Ctrl+X, Alt+X combos
-        if (lower.StartsWith("ctrl+"))
-        {
-            SendKeys.SendWait($"^{EscapeSendKeys(key[5..].ToLower())}");
-            return;
-        }
-        if (lower.StartsWith("alt+"))
-        {
-            SendKeys.SendWait($"%{EscapeSendKeys(key[4..].ToLower())}");
-            return;
-        }
-        if (lower.StartsWith("shift+"))
-        {
-            SendKeys.SendWait($"+{EscapeSendKeys(key[6..].ToLower())}");
-            return;
-        }
-
-        // Named keys
-        var sendKey = lower switch
-        {
-            "enter" or "return"   => "{ENTER}",
-            "tab"                 => "{TAB}",
-            "escape" or "esc"     => "{ESC}",
-            "space"               => " ",
-            "backspace"           => "{BACKSPACE}",
-            "delete"              => "{DELETE}",
-            "printscreen"         => "{PRTSC}",
-            "home"                => "{HOME}",
-            "end"                 => "{END}",
-            "pageup"              => "{PGUP}",
-            "pagedown"            => "{PGDN}",
-            "up"                  => "{UP}",
-            "down"                => "{DOWN}",
-            "left"                => "{LEFT}",
-            "right"               => "{RIGHT}",
-            "f1"                  => "{F1}",
-            "f2"                  => "{F2}",
-            "f3"                  => "{F3}",
-            "f4"                  => "{F4}",
-            "f5"                  => "{F5}",
-            "f6"                  => "{F6}",
-            "f7"                  => "{F7}",
-            "f8"                  => "{F8}",
-            "f9"                  => "{F9}",
-            "f10"                 => "{F10}",
-            "f11"                 => "{F11}",
-            "f12"                 => "{F12}",
-            _                     => key.Length == 1 ? EscapeSendKeys(key) : ""
-        };
-
-        if (!string.IsNullOrEmpty(sendKey))
-            SendKeys.SendWait(sendKey);
-    }
-
+    // ── Text extraction helpers ───────────────────────────────────────────────
     private static string? ExtractQuoted(string text)
     {
         var start = text.IndexOf('"');
