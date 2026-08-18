@@ -23,7 +23,6 @@ public partial class MainWindow : Window
 
         LoadPresets();
         LoadConfig();
-        // Hotkey is registered in HotkeyManager.OnLoaded after HWND exists
         RegisterHotkey();
     }
 
@@ -40,7 +39,7 @@ public partial class MainWindow : Window
         _hotkey.Register(Key.S, ModifierKeys.Control | ModifierKeys.Shift);
     }
 
-    // Title bar
+    // ── Title bar ─────────────────────────────────────────────────────────────
     private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
     {
         if (e.LeftButton == MouseButtonState.Pressed) DragMove();
@@ -59,10 +58,10 @@ public partial class MainWindow : Window
         var win = new SettingsWindow(_config);
         win.Owner = this;
         win.ShowDialog();
-        RegisterHotkey(); // Re-register in case hotkey changed
+        RegisterHotkey();
     }
 
-    // AI Mode
+    // ── AI Mode ───────────────────────────────────────────────────────────────
     private void AiMode_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
         if (ApiKeyPanel == null) return;
@@ -73,17 +72,17 @@ public partial class MainWindow : Window
         ModelCombo.Items.Clear();
         switch (idx)
         {
-            case 0: // Built-in ChatGPT
-            case 1: // Custom OpenAI
+            case 0:
+            case 1:
                 ModelCombo.Items.Add(new System.Windows.Controls.ComboBoxItem { Content = "gpt-4o" });
                 ModelCombo.Items.Add(new System.Windows.Controls.ComboBoxItem { Content = "gpt-4o-mini" });
                 ModelCombo.Items.Add(new System.Windows.Controls.ComboBoxItem { Content = "gpt-4-turbo" });
                 break;
-            case 2: // Claude
+            case 2:
                 ModelCombo.Items.Add(new System.Windows.Controls.ComboBoxItem { Content = "claude-3-5-sonnet-20241022" });
                 ModelCombo.Items.Add(new System.Windows.Controls.ComboBoxItem { Content = "claude-3-haiku-20240307" });
                 break;
-            case 3: // Gemini
+            case 3:
                 ModelCombo.Items.Add(new System.Windows.Controls.ComboBoxItem { Content = "gemini-1.5-pro" });
                 ModelCombo.Items.Add(new System.Windows.Controls.ComboBoxItem { Content = "gemini-1.5-flash" });
                 break;
@@ -91,7 +90,7 @@ public partial class MainWindow : Window
         ModelCombo.SelectedIndex = 0;
     }
 
-    // Start / Stop
+    // ── Start / Stop ──────────────────────────────────────────────────────────
     private async void Start_Click(object sender, RoutedEventArgs e)
     {
         if (_running) return;
@@ -103,7 +102,6 @@ public partial class MainWindow : Window
         var apiKey  = ApiKeyBox.Password.Trim();
         var cfg     = _config.Load();
 
-        // For built-in mode use stored key; for custom modes use what user typed
         var resolvedKey = modeIdx == 0 ? cfg.BuiltinKey : apiKey;
 
         if (string.IsNullOrWhiteSpace(resolvedKey))
@@ -151,7 +149,7 @@ public partial class MainWindow : Window
         });
     }
 
-    // Logging
+    // ── Logging ───────────────────────────────────────────────────────────────
     public void Log(string message)
     {
         var line = $"[{DateTime.Now:HH:mm:ss}] {message}";
@@ -166,16 +164,18 @@ public partial class MainWindow : Window
             File.AppendAllText(ConfigManager.LogFile, line + "\n");
     }
 
-    private void OnPlanUpdate(string plan)   => Dispatcher.Invoke(() => PlanText.Text = plan);
+    private void OnPlanUpdate(string plan)    => Dispatcher.Invoke(() => PlanText.Text = plan);
     private void OnStatusUpdate(string status) => Dispatcher.Invoke(() => SetStatus(status, "#6C3FC5"));
 
     private void SetStatus(string text, string color)
     {
         StatusText.Text = text;
-        StatusDot.Fill  = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color));
+        // Fully qualify to avoid ambiguity with System.Drawing.Color / ColorConverter
+        StatusDot.Fill = new SolidColorBrush(
+            (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(color)!);
     }
 
-    // Presets
+    // ── Presets ───────────────────────────────────────────────────────────────
     private List<string> _presets = new();
 
     private void LoadPresets()
